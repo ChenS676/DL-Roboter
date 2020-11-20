@@ -82,7 +82,7 @@ Until now we have introduced the image acquisition process using a simple exampl
 % \caption{A table}
 % \label{tab:atable}
 % \end{table}
-\subsection{disparity and depth estimation}
+\subsection{Disparity and depth estimation}
 \label{disparity and depth estimation}
 
 In last section we introduced the theory of imaging process. Depth estimation with single image is without prior knowledge theoretically not possible. An intuitive interpretation for this can be explained through the humanly imaging system. People can not identify the depth and the position of the object using just one eye. This section will introduce the method to estimation the depth using double images. 
@@ -114,23 +114,9 @@ Finally we get the expression of the depth $z$ with respect to $d$, $f$, $d$.
 So far, we have taken the mapping relationship between the disparity and depth. Therefore, the stereo-based depth estimation
 methods relied typically on matching pixels across multiple images captured using accurately calibrated cameras. 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 \subsection{overview: first and second generation methods}
 \label{overview: first and second generation methods}
-Meaningless text.
+In section \ref{disparity and depth estimation} we know that the depth estimation relys on the calculation of the disparity. This project's focus is not to implement the conventional method such as SAD, BM, SGBM, GC which are implemented in OpenCV. Understanding these traditional methods give aid to have a basic understanding of existing algorithms, that do not rely on match learning. Futhermore, it can also help us to design an appropriate machine learning algorithms to estimate depth maps.
 
 \subsection{summary}
 
