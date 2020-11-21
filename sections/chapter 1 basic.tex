@@ -121,7 +121,7 @@ refinement\cite{scharstein2002taxonomy}. We will introduce the the BM, SGM, SGBM
 
 The goal of a stereo correspondence algorithm is then to produce a univalued function in disparity space d(x, y) that best describes the shape of the surfaces in the scene. This can be viewed as finding a surface embedded in the disparity space image that has some optimality property, such as lowest cost and best (piecewise) smoothness.
 
-\subsubsection{BM Algorithm}
+\subsubsection{Basic}
 \label{BM Algorithm}
 Before more details about the BM will be given, we want to reformulate the problem and introduce the necessary notations for further discussion, assume we want to estimate the disparity of a pixel $(x,y) \in \mathbb{R}\times \mathbb{R}$ between reference image $r$ and  $(x^{'},y^{'}) \in \mathbb{R}\times \mathbb{R}$ matching images $m$ where s = ±1 is a sign chosen so that disparities are always positive. Note that since our images are numbered from leftmost to rightmost, the pixels move from right to left\cite{scharstein2002taxonomy}.
 \begin{equation}
@@ -148,9 +148,7 @@ Some useful matching cost function is given here:
         e(x,y,d) = min \{|I_R(x,y)-I_T(x+d,y))|, T \}
     \end{equation}
 \end{enumerate}
-The matching cost values over all pixels and all disparities form the initial disparity space image $C0(x, y, d)$. Local and window-based methods aggregate the matching cost by summing or averaging over a support region in the DSI 
-$C(x, y, d)$. Aggregation with a fixed support region can be performed
-using 2D or 3D convolution, 
+The matching cost values over all pixels and all disparities form the initial disparity space image $C0(x, y, d)$. Local and window-based methods aggregate the matching cost by summing or averaging over a support region in the DSI  $C(x, y, d)$. Aggregation with a fixed support region can be performed using 2D or 3D convolution, 
 \begin{equation}
     C(x, y, d) = w(x, y, d) \ast C_0(x, y, d)
 \end{equation}
@@ -162,12 +160,39 @@ On the other hand, global algorithms make explicit smoothness assumptions and th
 \begin{equation}
     E(d) = E_{data}(d) + \lambda E_{smooth}(d)
 \end{equation}
-Until now, we already have a big image of the traditional methods. 
+
+\subsubsection{Block Matching}
+\label{BM}
+Until now, we already have a big image of the traditional methods. Next we will introduce the basic algorithm block matching algorithm. We make a implicit smoothness assumptions, that the disparity within a finite window is smooth. We calculate the summed cost, for example, the traditoinal sum-of-squared-differences (SSD) over all pixels in the left view images using following equation. 
+\begin{equation}
+    C(x, y, d) = \sum_{x \in \mathbb{R}} (I_R(x, y)-I_T(x+d, y))^2
+\end{equation}
+Computing the final disparities is trivial: simply choose at each pixel the disparity associated with the minimum cost value. Thus, these methods perform a local “winner-take-all”
+(WTA) optimization at each pixel. In other words, choose the smallest value in the disparity space.  
+% https://jiweibo.github.io/StereoBM/
+
+
 \subsubsection{Semi-Global Matching Algorithm}
 \label{Semi-Global Matching}
-This subsection we introduce one of the most popular algorithms Semi-Global Matching. Semi-Global Matching Algorithm can be formulated as finding the disparity image D that minimizes the energy $E(D)$, which contains the similarity of a base image pixel $p$ from its intensity $I_b$ the suspected correspondence $I_m$ with $q$ in the range of half a pixel in each direction along the epipolar line. $E(D)$ will also consider the smoothness of a pixel $p$ and along all possible one dimensional path. SGD use the dynamic programming to search the minimum of the aggregated (smoothed) cost function $S(p, d)$ numerically. Afterwards, several methods will be used to solve the discontinuities in the disparity map. To the best of our knowledge, the  (SGM) method is based on the idea of pixelwise matching of Mutual Information and approximating a global, 2D smoothness constraint by combining many 1D constraints\cite{hirschmuller2007stereo}. 
+This subsection we introduce one of the most popular algorithms Semi-Global Matching. Semi-Global Matching Algorithm can be formulated as finding the disparity image D that minimizes the energy $E(D)$,which calculates the matching cost hierarchically by Mutual Information. Cost aggregation is performed as approximation of a global energy function by pathwise optimizations from all directions through the image. Disparity computation is done by winner takes all and supported by disparity refinements like consistency checking and sub-pixel interpolation. Multi-baseline matching is handled by fusion of disparities. Further disparity refinements include peak filtering, intensity consistent disparity selection and gap interpolation images and the fusion of several disparity images using orthographic projection\cite{hirschmuller2007stereo}. 
 
+Matching cost calculation in SGM is based on the Mulual Information(MI), which is dependent on the distribution of the pixel but not the pixel itself, so it is insentitvie to recording and illumination changes. The MI's definition is given as
+\begin{equation}
+    MI_{I_1, I_2} = H_1 + H_2 - H_{I_1, I_2}
+\end{equation}
+In the above-mentioned equation, $H_1$, $H_2$ are entropy of the pixels in left-view image, $H_{I_1, I_2}$ is the joint entropy of two images. As can been easily seen, this cost function relys on the histogram of the images, aiming to measure the similarities between two images. Practically people use a non-parameteric method to estimate these distributions, which are given by the following equations.
 
+\begin{equation}
+    h_{I_1, I_2}(i, k) = -\frac{1}{n}log(P_{I_1, I_2})\times g(i, k) \times g(i, k)
+\end{equation}
+$P_{I_1, I_2}$ denotes the joint distribution of every combination of the pixels in two images. $g(i, k)$ is a two dimensional gaussian kernal to get the continuous pixel distribution. 
+
+In cost aggregation is expressed by defining the energy $E(D)$ that depends on the disparity image D.
+\begin{equation}
+    E(D) = \sum_p(C(p, D_p))+\sum_{q\in \mathrm{N}_{p}}P_1T[|D_p-D_q|=1]+\sum_{q\in N_p}P_2T[|D_p-D_q>1|]
+\end{equation}
+
+The first term is the sum of all pixel matching costs for the disparities of $D$. The second term adds a constant penalty $P_1$ for all pixels q in the neighborhood $N_p$ of $p$, for which the disparity changes a little bit (i.e. 1 pixel). The third term adds a larger constant penalty $P_2$, for all larger disparity changes. This is the most important part of algorithm in SGM. More details can be found in \cite{hirschmuller2007stereo}
 \subsection{summary}
 
 % \begin{displaymath}
