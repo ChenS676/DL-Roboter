@@ -116,7 +116,13 @@ methods relied typically on matching pixels across multiple images captured usin
 
 \subsection{overview: first and second generation methods}
 \label{overview: first and second generation methods}
-In section \ref{disparity and depth estimation} we know that the depth estimation relys on the calculation of the disparity. This project's focus is not to implement the conventional method such as SAD, BM, SGBM, GC which are implemented in OpenCV. Understanding these traditional methods give aid to have a basic understanding of existing algorithms, that do not rely on match learning. Futhermore, it can also help us to design an appropriate machine learning algorithms to estimate depth maps.
+In section \ref{disparity and depth estimation} we know that the depth estimation relys on the calculation of the disparity. This project's focus is not to implement the conventional method such as SAD, BM, SGBM, GC which are implemented in OpenCV. Understanding these traditional methods give aid to have a basic understanding of existing algorithms, that do not rely on match learning. Futhermore, it can also help us to design an appropriate machine learning algorithms to estimate depth maps. 
+
+\subsubsection{Semi-Global Matching method}
+\label{Semi-Global Matching}
+This subsection we introduce one of the most popular algorithms Semi-Global Matching. The Semi-Global Matching (SGM) method is based on the idea of pixelwise matching of Mutual Information and approximating a global, 2D smoothness constraint by combining many 1D
+constraints\cite{hirschmuller2007stereo}. 
+
 
 \subsection{summary}
 
