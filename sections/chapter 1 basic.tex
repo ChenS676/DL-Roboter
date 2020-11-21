@@ -116,9 +116,33 @@ methods relied typically on matching pixels across multiple images captured usin
 
 \subsection{overview: first and second generation methods}
 \label{overview: first and second generation methods}
-In section \ref{disparity and depth estimation} we know that the depth estimation relys on the calculation of the disparity. This project's focus is not to implement the conventional method such as SAD, BM, SGBM, GC which are implemented in OpenCV. Understanding these traditional methods give aid to have a basic understanding of existing algorithms, that do not rely on match learning. Futhermore, it can also help us to design an appropriate machine learning algorithms to estimate depth maps. 
+In section \ref{disparity and depth estimation} we know that the depth estimation relys on the calculation of the disparity. Actually the first generation of stereo-based depth estimation methods relied typically on matching pixels across multiple images captured using accurately calibrated cameras. Although these techniques can achieve good results, they are still limited in many aspects. Those first generation methods distinguish between four steps that most stereo methods perform, i.e. matching cost computation, cost aggregation, disparity computation/optimization and disparity
+refinement\cite{scharstein2002taxonomy}. We will introduce the the BM, SGM, SGBM and GC successively. Understanding these traditional methods give aid to have a basic understanding of existing algorithms, that do not rely on match learning. Futhermore, it can also help us to design an appropriate machine learning algorithms to estimate depth maps. 
 
-\subsubsection{Semi-Global Matching method}
+\subsubsection{BM Algorithm}
+\label{BM Algorithm}
+Before more details about the BM will be given, we want to reformulate the problem and introduce the necessary notations for further discussion, assume we want to estimate the disparity of a pixel $(x,y) \in \mathbb{R}\times \mathbb{R}$ between reference image $r$ and  $(x^{'},y^{'}) \in \mathbb{R}\times \mathbb{R}$ matching images $m$ where s = ±1 is a sign chosen so that disparities are always positive. Note that since our images are numbered from leftmost to rightmost, the pixels move from right to left\cite{scharstein2002taxonomy}.
+\begin{equation}
+    x^{'} = x + sd(x,y), \quad y^{'} = y
+\end{equation}
+Some useful matching cost function is given here:
+\begin{enumerate}
+    \item Absolute differences
+        \begin{equation}
+            e(x,y,d) = |I_R(x,y)-I_T(x+d,y)|
+        \end{equation}
+    \item Squared differences
+        \begin{equation}
+            e(x,y,d) = (I_R(x,y)-I_T(x+d,y))^2
+        \end{equation}
+    \item Robust Matching measures (M-estimators)
+    \begin{equation}
+        e(x,y,d) = min[ |I_R(x,y)-I_T(x+d,y))|, T ]
+    \end{equation}
+\end{enumerate}
+
+
+\subsubsection{Semi-Global Matching Algorithm}
 \label{Semi-Global Matching}
 This subsection we introduce one of the most popular algorithms Semi-Global Matching. Semi-Global Matching Algorithm can be formulated as finding the disparity image D that minimizes the energy $E(D)$, which contains the similarity of a base image pixel $p$ from its intensity $I_b$ the suspected correspondence $I_m$ with $q$ in the range of half a pixel in each direction along the epipolar line. $E(D)$ will also consider the smoothness of a pixel $p$ and along all possible one dimensional path. SGD use the dynamic programming to search the minimum of the aggregated (smoothed) cost function $S(p, d)$ numerically. Afterwards, several methods will be used to solve the discontinuities in the disparity map. To the best of our knowledge, the  (SGM) method is based on the idea of pixelwise matching of Mutual Information and approximating a global, 2D smoothness constraint by combining many 1D constraints\cite{hirschmuller2007stereo}. 
 
