@@ -119,12 +119,20 @@ methods relied typically on matching pixels across multiple images captured usin
 In section \ref{disparity and depth estimation} we know that the depth estimation relys on the calculation of the disparity. Actually the first generation of stereo-based depth estimation methods relied typically on matching pixels across multiple images captured using accurately calibrated cameras. Although these techniques can achieve good results, they are still limited in many aspects. Those first generation methods distinguish between four steps that most stereo methods perform, i.e. matching cost computation, cost aggregation, disparity computation/optimization and disparity
 refinement\cite{scharstein2002taxonomy}. We will introduce the the BM, SGM, SGBM and GC successively. Understanding these traditional methods give aid to have a basic understanding of existing algorithms, that do not rely on match learning. Futhermore, it can also help us to design an appropriate machine learning algorithms to estimate depth maps. 
 
+The goal of a stereo correspondence algorithm is then to produce a univalued function in disparity space d(x, y) that best describes the shape of the surfaces in the scene. This can be viewed as finding a surface embedded in the disparity space image that has some optimality property, such as lowest cost and best (piecewise) smoothness.
+
 \subsubsection{BM Algorithm}
 \label{BM Algorithm}
 Before more details about the BM will be given, we want to reformulate the problem and introduce the necessary notations for further discussion, assume we want to estimate the disparity of a pixel $(x,y) \in \mathbb{R}\times \mathbb{R}$ between reference image $r$ and  $(x^{'},y^{'}) \in \mathbb{R}\times \mathbb{R}$ matching images $m$ where s = ±1 is a sign chosen so that disparities are always positive. Note that since our images are numbered from leftmost to rightmost, the pixels move from right to left\cite{scharstein2002taxonomy}.
 \begin{equation}
     x^{'} = x + sd(x,y), \quad y^{'} = y
 \end{equation}
+$d(x,y)$ is the epipolar constraint, which helps to decrease the search scope. From this point of view there are two mutually exclusive strategies to search for disparity. local (window-based) algorithms, where the disparity computation at a given point depends only on intensity values within a finite window, usually make implicit smoothness assumptions by aggregating support. This kind of methods can be broken down into steps:
+\begin{enumerate}
+    \item the matching cost is the squared difference of intensity values at a given disparity;
+    \item aggregation is done by summing matching cost over square windows with constant disparity;
+    \item disparities are computed by selecting the minimal (winning) aggregated value at each pixel.
+\end{enumerate}
 Some useful matching cost function is given here:
 \begin{enumerate}
     \item Absolute differences
@@ -137,11 +145,24 @@ Some useful matching cost function is given here:
         \end{equation}
     \item Robust Matching measures (M-estimators)
     \begin{equation}
-        e(x,y,d) = min[ |I_R(x,y)-I_T(x+d,y))|, T ]
+        e(x,y,d) = min \{|I_R(x,y)-I_T(x+d,y))|, T \}
     \end{equation}
 \end{enumerate}
+The matching cost values over all pixels and all disparities form the initial disparity space image $C0(x, y, d)$. Local and window-based methods aggregate the matching cost by summing or averaging over a support region in the DSI 
+$C(x, y, d)$. Aggregation with a fixed support region can be performed
+using 2D or 3D convolution, 
+\begin{equation}
+    C(x, y, d) = w(x, y, d) \ast C_0(x, y, d)
+\end{equation}
 
 
+
+On the other hand, global algorithms make explicit smoothness assumptions and then solve an optimization problem. Such algorithms typically do not perform an aggregation step, but rather seek a disparity assignment (step 3) that minimizes a global cost function that combines data (step 1) and smoothness terms. The object is to find a disparity function $d$ minimizes a global energy,
+
+\begin{equation}
+    E(d) = E_{data}(d) + \lambda E_{smooth}(d)
+\end{equation}
+Until now, we already have a big image of the traditional methods. 
 \subsubsection{Semi-Global Matching Algorithm}
 \label{Semi-Global Matching}
 This subsection we introduce one of the most popular algorithms Semi-Global Matching. Semi-Global Matching Algorithm can be formulated as finding the disparity image D that minimizes the energy $E(D)$, which contains the similarity of a base image pixel $p$ from its intensity $I_b$ the suspected correspondence $I_m$ with $q$ in the range of half a pixel in each direction along the epipolar line. $E(D)$ will also consider the smoothness of a pixel $p$ and along all possible one dimensional path. SGD use the dynamic programming to search the minimum of the aggregated (smoothed) cost function $S(p, d)$ numerically. Afterwards, several methods will be used to solve the discontinuities in the disparity map. To the best of our knowledge, the  (SGM) method is based on the idea of pixelwise matching of Mutual Information and approximating a global, 2D smoothness constraint by combining many 1D constraints\cite{hirschmuller2007stereo}. 
