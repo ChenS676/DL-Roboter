@@ -120,8 +120,7 @@ In section \ref{disparity and depth estimation} we know that the depth estimatio
 
 \subsubsection{Semi-Global Matching method}
 \label{Semi-Global Matching}
-This subsection we introduce one of the most popular algorithms Semi-Global Matching. The Semi-Global Matching (SGM) method is based on the idea of pixelwise matching of Mutual Information and approximating a global, 2D smoothness constraint by combining many 1D
-constraints\cite{hirschmuller2007stereo}. 
+This subsection we introduce one of the most popular algorithms Semi-Global Matching. Semi-Global Matching Algorithm can be formulated as finding the disparity image D that minimizes the energy $E(D)$, which contains the similarity of a base image pixel $p$ from its intensity $I_b$ the suspected correspondence $I_m$ with $q$ in the range of half a pixel in each direction along the epipolar line. $E(D)$ will also consider the smoothness of a pixel $p$ and along all possible one dimensional path. SGD use the dynamic programming to search the minimum of the aggregated (smoothed) cost function $S(p, d)$ numerically. Afterwards, several methods will be used to solve the discontinuities in the disparity map. To the best of our knowledge, the  (SGM) method is based on the idea of pixelwise matching of Mutual Information and approximating a global, 2D smoothness constraint by combining many 1D constraints\cite{hirschmuller2007stereo}. 
 
 
 \subsection{summary}
