@@ -192,8 +192,24 @@ In cost aggregation is expressed by defining the energy $E(D)$ that depends on t
     E(D) = \sum_p(C(p, D_p))+\sum_{q\in \mathrm{N}_{p}}P_1T[|D_p-D_q|=1]+\sum_{q\in N_p}P_2T[|D_p-D_q>1|]
 \end{equation}
 
-The first term is the sum of all pixel matching costs for the disparities of $D$. The second term adds a constant penalty $P_1$ for all pixels q in the neighborhood $N_p$ of $p$, for which the disparity changes a little bit (i.e. 1 pixel). The third term adds a larger constant penalty $P_2$, for all larger disparity changes. This is the most important part of algorithm in SGM. More details can be found in \cite{hirschmuller2007stereo}
-\subsection{summary}
+The first term is the sum of all pixel matching costs for the disparities of $D$. The second term adds a constant penalty $P_1$ for all pixels q in the neighborhood $N_p$ of $p$, for which the disparity changes a little bit (i.e. 1 pixel). The third term adds a larger constant penalty $P_2$, for all larger disparity changes. Since disparity varies smoothly in all directions, more optimization need to be performed. More details can be found in \cite{hirschmuller2007stereo}. 
+
+
+So far, the disparity image $Db$ that corresponds to the base image $I_b$ is determined as in local stereo methods by selecting for each pixel $p$ the disparity d that corresponds to the minimum cost, i.e. mind $S[p, d]$. The precondition for this is that the pixel can be seen by all images, for the covered areas is the disparity calculation based on the aforementioned method invalid. One method instead to improve this is using multi-baseline matching. Therefore, multi-baseline matching is performed by pairwise matching between the base and all match images individually.
+Fusion of disparity values is performed by calculating the weighted mean of disparities using the factors $t_k$ as weights. This solution increases robustness due to the median as well as accuracy due to the weighted mean. 
+
+
+Disparity using above mentioned algorithm is has still some disadvantages, which can not been improved through better algorithm significantly. So some useful post-processing method will be needed. It comprises peak removal, intensity consistent disparity check, discontinuity preserving interpolating. 
+For identifying peaks, the disparity image is segmented, by allowing neighboring disparities within one segment to vary by one pixel, considering a 4-connected image grid. The disparities of all segments below a certain size are set to invalid. This kind of simple segmentation and peak filtering can be implemented in $O(WH)$ steps. 
+
+For intensity consistent disparity check, uses image segmentation and plane fitting for refining an initial disparity image, but mostly only untextured areas above a certain size are modified. But it may invalidate some disparities. This leads to holes in the disparity image, but that can be solved using edge preserving interpolation. 
+
+\subsubsection{summary}
+\label{cha1 summary}
+%https://www.jianshu.com/p/07b499ae5c7d
+In addition, there are also other noteworthy algorithms, which share the same template of SGM. For example, SGBM uses a block matching method to calculate the matching cost. Here we will give the main difference between these algorithms, more details can be found in \cite{Hirschmüller07evaluationof}. 
+
+
 
 % \begin{displaymath}
 % f(x)=\Omega(g(x))\ (x\rightarrow\infty)\;\Leftrightarrow\;
